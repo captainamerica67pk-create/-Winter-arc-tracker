@@ -1,0 +1,379 @@
+```html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winter Arc Digital Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        winter: {
+                            900: '#0b0f19',
+                            800: '#111827',
+                            700: '#1f2937',
+                            cyan: '#06b6d4',
+                            blue: '#3b82f6',
+                            accent: '#38bdf8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+        }
+        .glow-cyan:hover {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+    <div id="app" class="max-w-5xl mx-auto w-full p-4 md:p-6 space-y-6">
+
+        <!-- Top Header Navigation -->
+        <header class="flex justify-between items-center bg-winter-800 border border-gray-800 p-4 rounded-2xl shadow-xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-xl text-black shadow-lg">
+                    ❄️
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                        WINTER ARC
+                    </h1>
+                    <p class="text-xs text-gray-400 font-medium">Digital Habit & Routine Tracker</p>
+                </div>
+            </div>
+            <div id="header-user-info" class="hidden flex items-center gap-4">
+                <span id="header-user-tag" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800"></span>
+                <button onclick="logout()" class="text-xs bg-red-950/50 hover:bg-red-900/80 text-red-400 border border-red-800/60 px-3 py-1.5 rounded-xl transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Exit Session
+                </button>
+            </div>
+        </header>
+
+        <!-- 1. PASSCODE PORTAL SCREEN -->
+        <div id="screen-passcode" class="max-w-md mx-auto my-12 bg-winter-800 border border-gray-800 p-8 rounded-2xl shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 bg-cyan-950/50 text-cyan-400 border border-cyan-800/80 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white tracking-tight">Portal Access</h2>
+                <p class="text-sm text-gray-400">Enter your challenge passcode code to proceed</p>
+            </div>
+
+            <form id="form-passcode" onsubmit="handlePasscode(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Access Passcode</label>
+                    <input type="password" id="input-passcode" placeholder="Enter code (e.g. #grindhard)" required
+                        class="w-full bg-winter-900 border border-gray-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-white text-sm outline-none transition">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold py-3 rounded-xl transition glow-cyan">
+                    Unlock Challenge
+                </button>
+            </form>
+            <p id="passcode-error" class="text-red-400 text-xs text-center hidden font-medium"></p>
+        </div>
+
+        <!-- 2. LOGIN / SIGNUP SCREEN -->
+        <div id="screen-auth" class="max-w-md mx-auto my-8 bg-winter-800 border border-gray-800 p-8 rounded-2xl shadow-2xl hidden space-y-6">
+            <div class="flex bg-winter-900 p-1.5 rounded-xl border border-gray-800">
+                <button id="tab-login-btn" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-bold rounded-lg transition bg-cyan-500 text-black shadow">
+                    Log In
+                </button>
+                <button id="tab-signup-btn" onclick="switchAuthTab('signup')" class="flex-1 py-2 text-xs font-bold text-gray-400 hover:text-white rounded-lg transition">
+                    Sign Up
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Username</label>
+                    <input type="text" id="login-username" placeholder="Your username" required
+                        class="w-full bg-winter-900 border border-gray-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-white text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required
+                        class="w-full bg-winter-900 border border-gray-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-white text-sm outline-none">
+                </div>
+                <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl transition glow-cyan">
+                    Access Account
+                </button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="form-signup" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Username</label>
+                    <input type="text" id="signup-username" placeholder="Choose a username" required
+                        class="w-full bg-winter-900 border border-gray-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-white text-sm outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Password</label>
+                        <input type="password" id="signup-password" placeholder="••••••••" required
+                            class="w-full bg-winter-900 border border-gray-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-white text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" placeholder="••••••••" required
+                            class="w-full bg-winter-900 border border-gray-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-white text-sm outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Weight (kg)</label>
+                        <input type="number" id="signup-weight" placeholder="e.g. 65" min="20" max="300" required
+                            class="w-full bg-winter-900 border border-gray-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-white text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Height (cm)</label>
+                        <input type="number" id="signup-height" placeholder="e.g. 175" min="100" max="250" required
+                            class="w-full bg-winter-900 border border-gray-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-white text-sm outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Available Workout Equipment</label>
+                    <select id="signup-equipment" class="w-full bg-winter-900 border border-gray-700 focus:border-cyan-500 rounded-xl px-4 py-3 text-white text-sm outline-none">
+                        <option value="None">None (Bodyweight Only)</option>
+                        <option value="Dumbbells 5kg">Dumbbells 5kg</option>
+                        <option value="Dumbbells (Heavy)">Dumbbells (Heavy)</option>
+                        <option value="Pull-up Bar">Pull-up Bar & Bands</option>
+                        <option value="Full Gym">Full Gym Access</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold py-3 rounded-xl transition shadow-lg">
+                    Create Winter Arc Profile
+                </button>
+            </form>
+
+            <p id="auth-error" class="text-red-400 text-xs text-center hidden font-medium"></p>
+        </div>
+
+        <!-- 3. MAIN TRACKER DASHBOARD -->
+        <div id="screen-dashboard" class="hidden space-y-6">
+            
+            <!-- User Profile Summary Banner -->
+            <div class="bg-gradient-to-r from-winter-800 via-gray-900 to-winter-800 border border-gray-800 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 id="dash-username" class="text-2xl font-black text-white"></h2>
+                        <span id="dash-role-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase"></span>
+                    </div>
+                    <p id="dash-stats" class="text-xs text-gray-400 mt-1"></p>
+                </div>
+
+                <!-- Daily Progress Circle / Card -->
+                <div class="bg-winter-900 border border-gray-800 px-5 py-3 rounded-xl flex items-center gap-4 w-full md:w-auto">
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Today's Progress</p>
+                        <p id="progress-text" class="text-xl font-black text-cyan-400">0%</p>
+                    </div>
+                    <div class="w-24 bg-gray-800 h-3 rounded-full overflow-hidden border border-gray-700">
+                        <div id="progress-bar-fill" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Habit & Routine Checklist -->
+            <div class="bg-winter-800 border border-gray-800 p-6 rounded-2xl shadow-xl space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                    <h3 class="text-lg font-bold text-cyan-400 flex items-center gap-2">
+                        <i class="fa-solid fa-square-check"></i> Daily Winter Arc Checklist
+                    </h3>
+                    <span id="checklist-counter" class="text-xs text-gray-400 font-semibold"></span>
+                </div>
+
+                <div id="routine-items-container" class="space-y-2.5">
+                    <!-- Dynamic Checklist Items -->
+                </div>
+            </div>
+
+            <!-- ADMIN ONLY CONTROL PANEL -->
+            <div id="admin-section" class="bg-winter-800 border border-yellow-900/50 p-6 rounded-2xl shadow-xl space-y-4 hidden">
+                <div class="flex items-center gap-2 text-yellow-400 border-b border-gray-800 pb-3">
+                    <i class="fa-solid fa-user-shield text-xl"></i>
+                    <h3 class="text-lg font-bold">Admin Management Console (KARTIK)</h3>
+                </div>
+
+                <div class="space-y-4" id="admin-user-list">
+                    <!-- Dynamic Participant Management -->
+                </div>
+            </div>
+
+            <!-- PUBLIC COMMUNITY LEADERBOARD -->
+            <div class="bg-winter-800 border border-gray-800 p-6 rounded-2xl shadow-xl space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-ranking-star text-yellow-400"></i> Community Progress Board
+                    </h3>
+                    <span class="text-xs text-gray-400">Real-time status</span>
+                </div>
+
+                <div id="community-leaderboard" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamic Community Cards -->
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-xs text-gray-600 border-t border-gray-900 mt-12">
+        Winter Arc Routine Tracker &bull; Execute Daily. No Excuses.
+    </footer>
+
+    <script>
+        // --- DATA STATE MANAGEMENT ---
+        const DEFAULT_ADMIN = {
+            id: 'user-kartik-admin',
+            username: 'KARTIK',
+            password: 'admin123password', // Used internally for local storage matching
+            role: 'admin',
+            weight: 52,
+            height: 169,
+            equipment: 'Dumbbells 5kg & Bodyweight',
+            routine: [
+                { id: 't1', text: '5:00 AM Morning Ignition & Cold Hydration', done: false },
+                { id: 't2', text: 'Dumbbell Press & Floor Flyes (Slow 3s Eccentrics)', done: false },
+                { id: 't3', text: 'Bulgarian Split Squats (High Rep Burnouts)', done: false },
+                { id: 't4', text: '10,000 Step Daily Target', done: false },
+                { id: 't5', text: 'Clean Nutrition & Protein Goal', done: false }
+            ]
+        };
+
+        // Local Storage Keys
+        const STORAGE_USERS = 'winter_arc_users_v1';
+        const STORAGE_CURRENT = 'winter_arc_current_user';
+
+        let users = [];
+        let currentUser = null;
+        let sessionAccessRole = null; // 'admin' or 'participant'
+
+        // --- APP INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initDatabase();
+            checkAutoLogin();
+        });
+
+        function initDatabase() {
+            const savedUsers = localStorage.getItem(STORAGE_USERS);
+            if (!savedUsers) {
+                users = [DEFAULT_ADMIN];
+                saveUsersToStorage();
+            } else {
+                users = JSON.parse(savedUsers);
+                // Ensure Kartik exists
+                if (!users.some(u => u.username.toUpperCase() === 'KARTIK')) {
+                    users.unshift(DEFAULT_ADMIN);
+                    saveUsersToStorage();
+                }
+            }
+        }
+
+        function saveUsersToStorage() {
+            localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+        }
+
+        function checkAutoLogin() {
+            const savedSession = localStorage.getItem(STORAGE_CURRENT);
+            if (savedSession) {
+                const user = users.find(u => u.id === savedSession);
+                if (user) {
+                    currentUser = user;
+                    sessionAccessRole = user.role;
+                    showDashboard();
+                }
+            }
+        }
+
+        // --- 1. PASSCODE PORTAL ---
+        function handlePasscode(e) {
+            e.preventDefault();
+            const input = document.getElementById('input-passcode').value.trim();
+            const errEl = document.getElementById('passcode-error');
+
+            if (input === '#admingrind#') {
+                sessionAccessRole = 'admin';
+                errEl.classList.add('hidden');
+                document.getElementById('screen-passcode').classList.add('hidden');
+                document.getElementById('screen-auth').classList.remove('hidden');
+            } else if (input === '#grindhard') {
+                sessionAccessRole = 'participant';
+                errEl.classList.add('hidden');
+                document.getElementById('screen-passcode').classList.add('hidden');
+                document.getElementById('screen-auth').classList.remove('hidden');
+            } else {
+                errEl.innerText = 'Invalid passcode! Check code and try again.';
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        // --- 2. AUTHENTICATION (LOG IN / SIGN UP) ---
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('form-login');
+            const signupForm = document.getElementById('form-signup');
+            const loginBtn = document.getElementById('tab-login-btn');
+            const signupBtn = document.getElementById('tab-signup-btn');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-cyan-500 text-black shadow";
+                signupBtn.className = "flex-1 py-2 text-xs font-bold text-gray-400 hover:text-white rounded-lg transition";
+            } else {
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+                signupBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-cyan-500 text-black shadow";
+                loginBtn.className = "flex-1 py-2 text-xs font-bold text-gray-400 hover:text-white rounded-lg transition";
+            }
+            document.getElementById('auth-error').classList.add('hidden');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const uname = document.getElementById('login-username').value.trim();
+            const pass = document.getElementById('login-password').value;
+            const errEl = document.getElementById('auth-error');
+
+            const foundUser = users.find(u => u.username.toLowerCase() === uname.toLowerCase());
+
+            if (!foundUser || foundUser.password !== pass) {
+                errEl.innerText = 'Invalid username or password.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            currentUser = foundUser;
+            localStorage.setItem(STORAGE_CURRENT, currentUser.id);
+            errEl.classList.add('hidden');
+            showDashboard();
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            const uname = document.getElementById('signup-username').value.trim();
+            const pass = document.getElementById('signup-password').value;
+            const confirmPass = document.getElementById('signup-confirm-password').value;
+            const weight = parseFloat(document.getElementById('signup-weight').value);
+            const height = parseFloat(document.getElementById('signup-height').value);
+            const equipment = document.getElementById('signup-equipment').value;
+            const errEl = document.getElementById('auth-error')
